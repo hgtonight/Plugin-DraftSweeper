@@ -13,7 +13,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-$PluginInfo['Draft Sweeper'] = array(
+$PluginInfo['DraftSweeper'] = array(
    'Name' => 'Draft Sweeper',
    'Description' => 'A plugin that adds a link to sweep all drafts from the system, per user.',
    'Version' => '0.1',
