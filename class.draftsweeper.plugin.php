@@ -1,5 +1,5 @@
 <?php
-/*	Copyright 2014-2016 Zachary Doll
+/*	Copyright 2016 Zachary Doll
  *	This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -16,7 +16,7 @@
 $PluginInfo['DraftSweeper'] = array(
    'Name' => 'Draft Sweeper',
    'Description' => 'A plugin that adds a link to sweep all drafts from the system, per user.',
-   'Version' => '0.3',
+   'Version' => '0.4',
    'RequiredApplications' => array('Vanilla' => '2.2'),
    'MobileFriendly' => true,
    'HasLocale' => true,
@@ -82,7 +82,7 @@ class DraftSweeper extends Gdn_Plugin {
         if(property_exists($sender, 'SweepOne') && $sender->SweepOne) {
             $json = $sender->getJson();
             if(!array_key_exists('ErrorMessage', $json)) {
-                $sender->informMessage('Draft cleared!');
+                $sender->informMessage(t('Draft cleared!'));
                 $sender->jsonTarget('.DraftSweeper', null, 'Remove');
                 $sender->jsonTarget('.CommentForm form textarea', 'sweepComment', 'Callback');
             }
@@ -112,6 +112,6 @@ class DraftSweeper extends Gdn_Plugin {
     }
     
     private function renderClearDraftButton($draftID, $transientKey) {
-        return anchor(t('Clear draft'), "/drafts/sweepone/$draftID/$transientKey", ['class' => 'DraftSweeper Button Hijack Options pull-left']);
+        return anchor(t('Clear Draft'), "/drafts/sweepone/$draftID/$transientKey", ['class' => 'DraftSweeper Button Hijack Options pull-left']);
     }
 }
