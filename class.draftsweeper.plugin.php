@@ -16,7 +16,7 @@
 $PluginInfo['DraftSweeper'] = array(
    'Name' => 'Draft Sweeper',
    'Description' => 'A plugin that adds a link to sweep all drafts from the system, per user.',
-   'Version' => '0.1',
+   'Version' => '0.2',
    'RequiredApplications' => array('Vanilla' => '2.2'),
    'MobileFriendly' => true,
    'HasLocale' => true,
@@ -32,6 +32,14 @@ $PluginInfo['DraftSweeper'] = array(
 
 class DraftSweeper extends Gdn_Plugin {
 
+    public function settingsController_draftSweeper_create($sender) {
+        $sender->Permission('Garden.Settings.Manage');
+        $sender->addSideMenu('settings/draftsweeper');
+        $sender->SetData('Title', $this->getPluginKey('Name'));
+        $sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
+        $sender->Render($this->GetView('settings.php'));
+    }
+    
     public function draftsController_beforeRenderAsset_handler($sender) {
         if($sender->EventArguments['AssetName'] == 'Content' && $sender->DraftData->count()) {
             echo anchor(t('Clear all drafts'), '/drafts/sweep', ['class' => 'DraftSweeper Button Hijack Options']);
