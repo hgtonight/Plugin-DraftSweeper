@@ -16,7 +16,7 @@
 $PluginInfo['DraftSweeper'] = array(
    'Name' => 'Draft Sweeper',
    'Description' => 'A plugin that adds a link to sweep all drafts from the system, per user.',
-   'Version' => '0.2',
+   'Version' => '0.3',
    'RequiredApplications' => array('Vanilla' => '2.2'),
    'MobileFriendly' => true,
    'HasLocale' => true,
@@ -68,5 +68,50 @@ class DraftSweeper extends Gdn_Plugin {
         $userID = val(0, $sender->EventArguments, false);
         $sender->SQL->delete('Draft', array('InsertUserID' => $userID));
         $sender->updateUser($userID);
+    }
+    
+    public function draftsController_sweepOne_create($sender, $draftID, $transientKey) {
+        $sender->View = 'Blank';
+        $sender->ControllerName = 'Utility';
+        $sender->ApplicationFolder = 'Dashboard';
+        $sender->SweepOne = true;
+        $sender->delete($draftID, $transientKey);
+    }
+    
+    public function draftsController_render_before($sender) {
+        if(property_exists($sender, 'SweepOne') && $sender->SweepOne) {
+            $json = $sender->getJson();
+            if(!array_key_exists('ErrorMessage', $json)) {
+                $sender->informMessage('Draft cleared!');
+                $sender->jsonTarget('.DraftSweeper', null, 'Remove');
+                $sender->jsonTarget('.CommentForm form textarea', 'sweepComment', 'Callback');
+            }
+        }
+    }
+    
+    public function discussionController_render_before($sender) {
+        $sender->addJsFile('sweeper.js', $this->getPluginFolder(false));
+    }
+    
+    public function discussionController_beforeFormButtons_handler($sender) {
+        $hasDraft = ($sender->Form->HiddenInputs['DraftID']) ? true : false;
+        if($hasDraft) {
+            $draftID = $sender->Form->HiddenInputs['DraftID'];
+            $transientKey = Gdn::session()->transientKey();
+            echo $this->renderClearDraftButton($draftID, $transientKey);
+        }
+    }
+    
+    public function postController_beforeCommentRender_handler($sender) {
+        if($sender->EventArguments['Draft']) {
+            $draftID = $sender->Form->HiddenInputs['DraftID'];
+            $transientKey = Gdn::session()->transientKey();
+            $sender->jsonTarget('.CommentForm .Buttons .DraftSweeper', null, 'Remove');
+            $sender->jsonTarget('.CommentForm .Buttons', $this->renderClearDraftButton($draftID,$transientKey), 'Append');
+        }
+    }
+    
+    private function renderClearDraftButton($draftID, $transientKey) {
+        return anchor(t('Clear draft'), "/drafts/sweepone/$draftID/$transientKey", ['class' => 'DraftSweeper Button Hijack Options pull-left']);
     }
 }
